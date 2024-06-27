@@ -1,7 +1,3 @@
-Here's a detailed README for your HTML reader of JSON news:
-
----
-
 # JSON News Reader
 
 This project is an HTML-based news reader that fetches and displays news articles from a JSON file. It includes features for filtering news by country and language, and the ability to mark articles as favorites or bookmarks. Additionally, there is navigation to a separate page for viewing favorite articles.
@@ -109,7 +105,3 @@ The project uses basic CSS for styling, including classes for news items, titles
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
-
----
-
-Feel free to customize this README further based on your specific needs or additional features you may add.
