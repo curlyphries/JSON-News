@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Favorite News</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .news-item {
+            background: #fff;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        .title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .author-date {
+            color: #777;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .excerpt {
+            margin-bottom: 10px;
+        }
+        .link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .button {
+            margin-left: 5px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1.2em;
+        }
+        .button.favorite {
+            color: red;
+        }
+        .button.bookmark {
+            color: gold;
+        }
+        .nav-buttons {
+            margin-bottom: 20px;
+        }
+        .nav-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Favorite News</h1>
+    <div class="nav-buttons">
+        <button class="nav-button" onclick="location.href='index.html'">Back to News</button>
+    </div>
+    <div id="news-container"></div>
+
+    <script>
+        async function fetchFavorites() {
+            const response = await fetch('news.json');
+            const newsData = await response.json();
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const favoriteNews = newsData.filter(item => favorites.includes(item._id));
+            displayNews(favoriteNews);
+        }
+
+        function displayNews(newsData) {
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '';
+
+            newsData.forEach(newsItem => {
+                const newsDiv = document.createElement('div');
+                newsDiv.classList.add('news-item');
+
+                const title = document.createElement('div');
+                title.classList.add('title');
+                title.textContent = newsItem.title;
+
+                const authorDate = document.createElement('div');
+                authorDate.classList.add('author-date');
+                authorDate.textContent = `By ${newsItem.author} on ${new Date(newsItem.published_date).toLocaleDateString()}`;
+
+                const excerpt = document.createElement('div');
+                excerpt.classList.add('excerpt');
+                excerpt.textContent = newsItem.excerpt;
+
+                const link = document.createElement('a');
+                link.classList.add('link');
+                link.href = newsItem.link;
+                link.textContent = 'Read more';
+                link.target = '_blank';
+
+                const buttons = document.createElement('div');
+                buttons.classList.add('buttons');
+
+                const favoriteButton = document.createElement('button');
+                favoriteButton.classList.add('button', 'favorite');
+                favoriteButton.innerHTML = '&#9733;'; // Star icon
+                favoriteButton.style.color = 'red'; // Highlight as favorite
+                favoriteButton.addEventListener('click', () => toggleFavorite(newsItem._id, favoriteButton));
+
+                const bookmarkButton = document.createElement('button');
+                bookmarkButton.classList.add('button', 'bookmark');
+                bookmarkButton.innerHTML = '&#128278;'; // Bookmark icon
+                if (isBookmarked(newsItem._id)) {
+                    bookmarkButton.style.color = 'gold';
+                }
+                bookmarkButton.addEventListener('click', () => toggleBookmark(newsItem._id, bookmarkButton));
+
+                buttons.appendChild(favoriteButton);
+                buttons.appendChild(bookmarkButton);
+
+                newsDiv.appendChild(title);
+                newsDiv.appendChild(authorDate);
+                newsDiv.appendChild(excerpt);
+                newsDiv.appendChild(link);
+                newsDiv.appendChild(buttons);
+
+                newsContainer.appendChild(newsDiv);
+            });
+        }
+
+        function toggleFavorite(id, button) {
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(fav => fav !== id);
+                button.style.color = '';
+            } else {
+                favorites.push(id);
+                button.style.color = 'red';
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            fetchFavorites(); // Refresh favorites list
+        }
+
+        function toggleBookmark(id, button) {
+            let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+            if (bookmarks.includes(id)) {
+                bookmarks = bookmarks.filter(bookmark => bookmark !== id);
+                button.style.color = '';
+            } else {
+                bookmarks.push(id);
+                button.style.color = 'gold';
+            }
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        }
+
+        function isBookmarked(id) {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+            return bookmarks.includes(id);
+        }
+
+        fetchFavorites();
+    </script>
+</body>
+</html>
